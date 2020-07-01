@@ -20,10 +20,10 @@
 #define SRG2 0x00080000  //1<<19       //pin-15 = srg2 clock
 #define SRG3 0x00800000  //1<<23       //pin-16 2 = srg3 clock
 #define TRG  0x00400000  //1<<22       //pin-17 = trg clock
-#define IAG  0x00020000  //1<<17      //pin-18 = iag clock
+#define IAG  0x00020000  //1<<17      //pin-18 = iag clock / LDC
 #define SAG  0x00010000  //1<<16      //pin-19 = sag clock
-#define LOWNOISE 0x04000000 //1<<26  //pin-20 = low dark current
-#define CCDINIT  LOWNOISE     //normal static state of clock lines
+#define LOWNOISE 0x04000000 //1<<26  //pin-20 = amp electro lum
+#define CCDINIT  0      //normal static state of clock lines
 
 
 // TC211 Camera Constants
@@ -71,7 +71,7 @@
 #define SHUTHI  (1<<18) + (1<<19) + (1<<22) //Extra control bit constants for -electroluminescence
 #define SHUTLO  (1<<19) + (1<<22)
 
-#define NODARK   TCCDINIT + IAG //TCCDINIT + IAG low dark integrate mode
+#define NODARK  IAG       //TCCDINIT + IAG low dark integrate mode
 
 #define RST1 TSRG + TCCDINIT
 #define RST2  TSRG + TCCDINIT + SH
@@ -138,6 +138,9 @@ void setup() {
   south = 0;
     
   Serial.begin(1843200);
+  
+  Timer3.initialize(10000);
+  Timer3.attachInterrupt(guide);
 }
 
 void loop() {
@@ -212,18 +215,19 @@ void loop() {
     exit;   
   }
   
-   if (mode > 18){ 
+   if ((mode > 18) && (mode < 30)){ 
     tclrimage(1000); 
     te = millis();
     t = millis() + tms;
     if (options==1) outlow(NODARK); //turn on low dark current mode
-    if ((options & 2)==2) outlow(NODARK+LOWNOISE);
+    if ((options & 2)==2) outlow(LOWNOISE);
+    if (options == 3) outlow(NODARK + LOWNOISE);
     while (Serial.available() == 0){
       delay(1);
       if (millis()>=t) break;
     }
     outlow(TCCDINIT);
-    if ((options & 2)==2) delay(1);
+    if (options != 0) delay(2);
     tms = millis()-te;  
   
     if (mode==19) tgetimage();
