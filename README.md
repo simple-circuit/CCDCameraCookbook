@@ -17,4 +17,4 @@ the new interface card.
 
 Simple-Circuit
 
-![](./screen_shot.png)
+![](./sreen_shot.png)
