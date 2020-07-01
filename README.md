@@ -16,3 +16,5 @@ Several top side jumper wires are needed. The Cookbook connectors from the pream
 the new interface card.
 
 Simple-Circuit
+
+![](./screen_shot.png)
